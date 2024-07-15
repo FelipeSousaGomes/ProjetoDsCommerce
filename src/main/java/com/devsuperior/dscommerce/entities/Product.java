@@ -3,7 +3,10 @@ package com.devsuperior.dscommerce.entities;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+
 @Entity
 @Table(name = "tb_product")
 public class Product {
@@ -13,7 +16,7 @@ public class Product {
     private Long id;
     private String name;
     @Column(columnDefinition = "TEXT")
-    private String descreption;
+    private String description;
     private Double price;
     private String imgUrl;
     @ManyToMany
@@ -25,10 +28,10 @@ public class Product {
     @OneToMany(mappedBy = "id.product")
     private Set<OrderItem> items = new HashSet<>();
 
-    public Product(Long id, String name, String descreption, Double price, String imgUrl) {
+    public Product(Long id, String name, String description, Double price, String imgUrl) {
         this.id = id;
         this.name = name;
-        this.descreption = descreption;
+        this.description = description;
         this.price = price;
         this.imgUrl = imgUrl;
     }
@@ -36,7 +39,6 @@ public class Product {
     public Product() {
 
     }
-
 
     public Long getId() {
         return id;
@@ -54,12 +56,12 @@ public class Product {
         this.name = name;
     }
 
-    public String getDescreption() {
-        return descreption;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDescreption(String descreption) {
-        this.descreption = descreption;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Double getPrice() {
@@ -80,5 +82,26 @@ public class Product {
 
     public Set<Category> getCategories() {
         return categories;
+    }
+
+    public Set<OrderItem> getItems() {
+        return items;
+    }
+
+    public List<Order> getOrder() {
+        return items.stream().map(x -> x.getOrder()).toList();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return Objects.equals(id, product.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
