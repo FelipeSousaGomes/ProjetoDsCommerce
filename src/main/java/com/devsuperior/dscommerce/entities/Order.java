@@ -85,6 +85,10 @@ public class Order {
         return Objects.equals(id, order.id);
     }
 
+    public Payment getPayment() {
+        return payment;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(id);
