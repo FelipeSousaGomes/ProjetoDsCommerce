@@ -39,9 +39,7 @@ public class ProductMinDTO {
         return name;
     }
 
-    public String getDescription() {
-        return description;
-    }
+
 
     public Double getPrice() {
         return price;
@@ -52,4 +50,4 @@ public class ProductMinDTO {
     }
 }
 
-}
+
