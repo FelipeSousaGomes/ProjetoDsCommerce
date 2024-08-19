@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import org.springframework.context.annotation.EnableMBeanExport;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_user")
@@ -26,7 +24,11 @@ public class User {
     private List<Order> orders = new ArrayList<>();
 
 
-
+    @ManyToMany
+    @JoinTable(name = "tb_user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
     public User(){
 
     }
@@ -90,6 +92,24 @@ public class User {
 
     public List<Order> getOrders() {
         return orders;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public Boolean hasRole(String roleName){
+        for(Role role: roles){
+            if( role.getAuthority().equals(roleName)) {
+                return true;
+            }
+
+        }
+        return false;
     }
 
     @Override
