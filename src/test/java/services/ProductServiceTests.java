@@ -3,6 +3,7 @@ package services;
 import com.devsuperior.dscommerce.dto.ProductDTO;
 import com.devsuperior.dscommerce.dto.ProductMinDTO;
 import com.devsuperior.dscommerce.entities.Product;
+import com.devsuperior.dscommerce.exceptions.DatabaseException;
 import com.devsuperior.dscommerce.exceptions.ResourceNotFoundException;
 import com.devsuperior.dscommerce.repositories.ProductRepository;
 import com.devsuperior.dscommerce.services.ProductService;
@@ -37,7 +38,7 @@ public class ProductServiceTests {
 
     private String productName;
 
-    private long existingId, nonExistingId;
+    private long existingId, nonExistingId, dependentId;
     private Product product;
 
     private PageImpl<Product> page;
@@ -47,6 +48,8 @@ public class ProductServiceTests {
     void setUp() throws Exception {
         existingId = 1L;
         nonExistingId = 2L;
+        dependentId = 3L;
+
         productName = "Playstation";
         product = ProductFactory.createProductName(productName);
 
@@ -62,6 +65,13 @@ public class ProductServiceTests {
         Mockito.doThrow(ResourceNotFoundException.class).when(productRepository).findById(nonExistingId);
         Mockito.when(productRepository.searchByName(any(), (Pageable) any())).thenReturn(page);
         Mockito.doThrow(ResourceNotFoundException.class).when(productRepository).getReferenceById(nonExistingId);
+        Mockito.when(productRepository.existsById(existingId)).thenReturn(true);
+        Mockito.when(productRepository.existsById(dependentId)).thenReturn(true);
+        Mockito.when(productRepository.existsById(nonExistingId)).thenReturn(false);
+        Mockito.doNothing().when(productRepository).deleteById(existingId);
+        Mockito.doThrow(DatabaseException.class).when(productRepository).deleteById(dependentId);
+
+        
     }
 
     @Test
@@ -111,5 +121,22 @@ public class ProductServiceTests {
     @Test
     public void UpdateShouldResourceNotFoundExceptionWhenIdDoesNotExist() {
         Assertions.assertThrows(ResourceNotFoundException.class, () -> productService.Update(nonExistingId, productDTO));
+    }
+
+
+    @Test
+    public void DeleteShouldReturnNothingWhenIdExists() {
+        Assertions.assertDoesNotThrow(() -> productService.delete(existingId));
+    }
+
+
+    @Test
+    public void DeleteShouldResourceNotFoundExceptionWhenIdDoesNotExist() {
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> productService.delete(nonExistingId));
+    }
+
+    @Test
+    public void DeleteShouldDatabaseExceptionWhenDependent() {
+        Assertions.assertThrows(DatabaseException.class, () -> productService.delete(dependentId));
     }
 }
